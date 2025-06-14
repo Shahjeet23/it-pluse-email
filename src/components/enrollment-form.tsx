@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from 'react';
+import React, { useActionState, useEffect, useRef } from 'react';
 import { useFormState } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -22,7 +22,7 @@ const initialFormState: FormState = {
 };
 
 export function EnrollmentForm() {
-  const [state, formAction] = useFormState(submitEnrollmentForm, initialFormState);
+  const [state, formAction] = useActionState(submitEnrollmentForm, initialFormState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 
