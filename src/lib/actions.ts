@@ -29,7 +29,7 @@ const transporter = nodemailer.createTransport({
   secure: process.env.SMTP_SECURE === 'true' || false, // true for 465, false for other ports (587 uses TLS)
   auth: {
     user: process.env.SMTP_USER || "jeetshah24041996@gmail.com", // Your Gmail address
-    pass: process.env.SMTP_PASS || "J&&t_$h@h23sjdbfkdsjfkjbskd", // Your Gmail App Password or account password (less secure)
+    pass: process.env.SMTP_PASS || "wohw rdiv zmeh pkbf", // Your Gmail App Password or account password (less secure)
   },
   // If using Gmail, you might need to enable "Less secure app access" in your Google account settings,
   // or preferably, generate an "App Password".
