@@ -31,7 +31,7 @@ export default function HomePage() {
         </header>
         
         {/* Placeholder video URL. Replace with actual marketing video. */}
-        <VideoPlayer videoSrc="https://www.youtube.com/embed/BuResXv05sA" title="Young Banker Program Introduction" />
+        <VideoPlayer videoSrc="/WhatsApp Video 2025-06-14 at 21.00.06_e38a62f3.mp4" title="Young Banker Program Introduction" />
 
         <Card className="w-full shadow-xl rounded-lg">
           <CardHeader>
