@@ -1,3 +1,4 @@
+
 "use server";
 
 import { redirect } from 'next/navigation';
@@ -19,15 +20,19 @@ export type FormState = {
 };
 
 // Configure Nodemailer transporter
-// IMPORTANT: Replace with your actual email service credentials and use environment variables
+// IMPORTANT: Using hardcoded credentials is highly insecure. 
+// Consider using environment variables for production.
+// Example: process.env.SMTP_HOST, process.env.SMTP_PORT, etc.
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || "smtp.example.com", // Your SMTP host
-  port: parseInt(process.env.SMTP_PORT || "587", 10), // Your SMTP port
-  secure: process.env.SMTP_SECURE === 'true' || false, // true for 465, false for other ports
+  host: process.env.SMTP_HOST || "smtp.gmail.com", // Using Gmail SMTP
+  port: parseInt(process.env.SMTP_PORT || "587", 10), // Standard port for Gmail
+  secure: process.env.SMTP_SECURE === 'true' || false, // true for 465, false for other ports (587 uses TLS)
   auth: {
-    user: process.env.SMTP_USER || "your-email@example.com", // Your email address
-    pass: process.env.SMTP_PASS || "your-email-password", // Your email password
+    user: process.env.SMTP_USER || "jeetshah24041996@gmail.com", // Your Gmail address
+    pass: process.env.SMTP_PASS || "J&&t_$h@h23sjdbfkdsjfkjbskd", // Your Gmail App Password or account password (less secure)
   },
+  // If using Gmail, you might need to enable "Less secure app access" in your Google account settings,
+  // or preferably, generate an "App Password".
 });
 
 
@@ -87,7 +92,7 @@ export async function submitEnrollmentForm(prevState: FormState | undefined, for
     }
 
     const mailOptions: nodemailer.SendMailOptions = {
-      from: `"EnrollNow System" <${process.env.SMTP_USER || "noreply@example.com"}>`, // Sender address
+      from: `"EnrollNow System" <${process.env.SMTP_USER || "jeetshah24041996@gmail.com"}>`, // Sender address (your Gmail)
       to: recipientEmail, // List of receivers
       subject: subject, // Subject line
       html: htmlBody, // HTML body
@@ -115,7 +120,9 @@ export async function submitEnrollmentForm(prevState: FormState | undefined, for
     console.error("Error processing form submission or sending email:", error);
     // Differentiate between nodemailer errors and other errors if needed
     let errorMessage = "An unexpected error occurred. Please try again.";
-    if (error instanceof Error && 'code' in error && error.code === 'EENVELOPE') { // Example Nodemailer error check
+    if (error instanceof Error && 'code' in error && (error as any).code === 'EAUTH') { 
+        errorMessage = "Error sending email: Authentication failed. Please check your email credentials and ensure 'Less secure app access' is enabled or use an App Password if using Gmail.";
+    } else if (error instanceof Error && 'code' in error && (error as any).code === 'EENVELOPE') { 
         errorMessage = "Error sending email: Invalid recipient or sender. Please contact support.";
     } else if (error instanceof Error) {
         errorMessage = `Error: ${error.message}`;
