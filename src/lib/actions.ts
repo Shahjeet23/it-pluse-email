@@ -73,9 +73,9 @@ export async function submitEnrollmentForm(prevState: FormState | undefined, for
   const data: EnrollmentFormValues = validatedFields.data;
 
   try {
-    const recipientEmail = "hr@itplusbharuch.com"; 
+    const recipientEmail = "hr@itplusbharuch.com";
     const subject = `New Young Banker Program Application - ${data.name}`;
-    
+
     let htmlBody = `
       <h1>New Enrollment Application</h1>
       <p><strong>Name:</strong> ${data.name}</p>
@@ -112,7 +112,7 @@ export async function submitEnrollmentForm(prevState: FormState | undefined, for
       ];
       console.log(`Resume "${resumeFile.name}" prepared for attachment.`);
     }
-    
+
     await transporter.sendMail(mailOptions);
     console.log(`Email sent successfully to ${recipientEmail} for applicant ${data.name}`);
 
@@ -120,12 +120,12 @@ export async function submitEnrollmentForm(prevState: FormState | undefined, for
     console.error("Error processing form submission or sending email:", error);
     // Differentiate between nodemailer errors and other errors if needed
     let errorMessage = "An unexpected error occurred. Please try again.";
-    if (error instanceof Error && 'code' in error && (error as any).code === 'EAUTH') { 
-        errorMessage = "Error sending email: Authentication failed. Please check your email credentials and ensure 'Less secure app access' is enabled or use an App Password if using Gmail.";
-    } else if (error instanceof Error && 'code' in error && (error as any).code === 'EENVELOPE') { 
-        errorMessage = "Error sending email: Invalid recipient or sender. Please contact support.";
+    if (error instanceof Error && 'code' in error && (error as any).code === 'EAUTH') {
+      errorMessage = "Error sending email: Authentication failed. Please check your email credentials and ensure 'Less secure app access' is enabled or use an App Password if using Gmail.";
+    } else if (error instanceof Error && 'code' in error && (error as any).code === 'EENVELOPE') {
+      errorMessage = "Error sending email: Invalid recipient or sender. Please contact support.";
     } else if (error instanceof Error) {
-        errorMessage = `Error: ${error.message}`;
+      errorMessage = `Error: ${error.message}`;
     }
 
     return {
@@ -134,6 +134,8 @@ export async function submitEnrollmentForm(prevState: FormState | undefined, for
       errors: { _form: [errorMessage] }
     };
   }
-  
-  redirect('/thank-you');
+  return {
+    message: "Form submitted successfully",
+    success: true,
+  };
 }

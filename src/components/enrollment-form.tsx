@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useActionState, useEffect, useRef } from 'react';
@@ -6,10 +5,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { enrollmentSchema, type EnrollmentFormValues } from '@/schemas/enrollment-schema';
 import { submitEnrollmentForm, type FormState } from '@/lib/actions';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-// Label import is not directly used, FormLabel is. Kept for consistency if needed elsewhere.
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
@@ -24,6 +23,7 @@ export function EnrollmentForm() {
   const [state, formAction] = useActionState(submitEnrollmentForm, initialFormState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
+  const router = useRouter();
 
   const form = useForm<EnrollmentFormValues>({
     resolver: zodResolver(enrollmentSchema),
@@ -35,16 +35,20 @@ export function EnrollmentForm() {
       phone: '',
       resume: undefined,
     },
-    mode: 'onChange', // Real-time validation
+    mode: 'onChange',
   });
 
   const { formState: { isSubmitting, isValid } } = form;
 
-
   useEffect(() => {
+    if (state?.success) {
+      router.push('/thank-you');
+      return;
+    }
+
     if (state?.message && !state.success && state.errors) {
-       const currentFormValues = form.getValues();
-       Object.entries(state.errors).forEach(([key, value]) => {
+      const currentFormValues = form.getValues();
+      Object.entries(state.errors).forEach(([key, value]) => {
         if (key !== "_form" && value && Object.prototype.hasOwnProperty.call(currentFormValues, key)) {
           form.setError(key as keyof EnrollmentFormValues, { type: 'server', message: value.join(', ') });
         }
@@ -55,23 +59,19 @@ export function EnrollmentForm() {
         variant: "destructive",
       });
     }
-    // Success is handled by redirect in server action.
-  }, [state, toast, form]);
+  }, [state, toast, form, router]);
 
-
-  const onSubmit = (data: EnrollmentFormValues) => {
+  const onSubmit = async (data: EnrollmentFormValues) => {
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
-      // data.resume should be a File object or undefined due to react-hook-form's onChange handling for file inputs
       if (value instanceof File) {
         formData.append(key, value);
       } else if (value !== undefined && value !== null) {
         formData.append(key, String(value));
       }
     });
-    formAction(formData);
+    await formAction(formData);
   };
-
 
   return (
     <Card className="w-full max-w-2xl shadow-2xl">
@@ -82,7 +82,6 @@ export function EnrollmentForm() {
         </CardDescription>
       </CardHeader>
       <Form {...form}>
-        {/* Removed action={formAction} to rely solely on RHF's handleSubmit */}
         <form ref={formRef} onSubmit={form.handleSubmit(onSubmit)} className="space-y-0">
           <CardContent className="space-y-6">
             <FormField
@@ -150,24 +149,24 @@ export function EnrollmentForm() {
                 </FormItem>
               )}
             />
-             <FormField
+            <FormField
               control={form.control}
               name="resume"
               render={({ field: { onChange, onBlur, name, ref } }) => (
                 <FormItem>
                   <FormLabel className="flex items-center"><FileText className="mr-2 h-4 w-4" />Upload Resume (Optional)</FormLabel>
                   <FormControl>
-                     <Input
-                        type="file"
-                        accept=".pdf,.doc,.docx"
-                        onChange={(e) => onChange(e.target.files ? e.target.files[0] : null)}
-                        onBlur={onBlur}
-                        name={name}
-                        ref={ref}
-                        className="pt-2 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
-                        aria-invalid={!!form.formState.errors.resume}
-                        aria-describedby="resume-error"
-                      />
+                    <Input
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      onChange={(e) => onChange(e.target.files ? e.target.files[0] : null)}
+                      onBlur={onBlur}
+                      name={name}
+                      ref={ref}
+                      className="pt-2 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                      aria-invalid={!!form.formState.errors.resume}
+                      aria-describedby="resume-error"
+                    />
                   </FormControl>
                   <FormMessage id="resume-error" />
                 </FormItem>
@@ -190,4 +189,3 @@ export function EnrollmentForm() {
     </Card>
   );
 }
-    
